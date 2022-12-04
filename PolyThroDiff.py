@@ -1,6 +1,6 @@
-# Taking in a set of coordinates, This program tries to
-# find a polynomial that defines a definite function f,
-# that behaves as the relation between the x value and the 
+# Taking in sets of coordinates, This program seeks
+# after a polynomial that defines a definite function f,
+# behaving as the relation between the x value and the 
 # y value through f(x). The way undertaken in this program
 # for that is the method of finite differences on 
 # polynomials as described here:
