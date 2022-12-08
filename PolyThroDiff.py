@@ -20,9 +20,15 @@ X = 'x'
 # The data points below are optional. there are 2 other
 # options to choose, or any the user knows to behave
 # in the nature described.
+
+
+#data_points=[[0,-4],[1,-2],[2,0],[3,2],[4,4],[5,6]]
+#data_points=[[0,0],[1,1],[2,4],[3,9],[4,16],[5,25]]
 #data_points=[[0,2],[1,3],[2,26],[3,89],[4,210]]
-#data_points=[[1,-34],[2,-42],[3,-38],[4,-16],[5,30],[6,106]]
-data_points=[[1,1],[2,-3],[3,5],[4,37],[5,105],[6,221]]
+data_points=[[1,-34],[2,-42],[3,-38],[4,-16],[5,30],[6,106]]
+#data_points=[[1,1],[2,-3],[3,5],[4,37],[5,105],[6,221]]
+
+
 
 difference_tables=[]
 
@@ -33,7 +39,7 @@ def main():
     polynomialResult=algorithm_execute(data_points)
     print(f"""
 The polynomial was found as:
-{render_polynomial(polynomialResult['polynomial_dictionary'])}
+{render_polynomial(polynomialResult['polynomial_dictionary']).replace('+-','-')}
 For an elaborate explanation enter the word more.""")
     if(input()=='more'):
         print(proof_text_generator(polynomialResult['polynomial_dictionary'],difference_tables,polynomialResult['polynomial_in_text']))
@@ -50,6 +56,8 @@ def algorithm_execute(data_points):
     cordDict=cords_to_dictionary(data_points)
     equationDeg=difference_dictionary_generator(cordDict)['degree']
     for _ in range(equationDeg):
+        if(isListNull(cordDict[FX])):
+            break
         curDiff=difference_dictionary_generator(cordDict)
         polynomial_dictionary['degree'].insert(0,curDiff['degree'])
         polynomial_dictionary['coefficients'].insert(0,curDiff['coefficients'])
@@ -71,14 +79,15 @@ def algorithm_execute(data_points):
 def difference_dictionary_generator(data_points):
     global difference_tables
     difference_dictionary={FX:data_points[FX]}
-    while(len(difference_dictionary)<(len(data_points[FX])-1) and isListNull(difference_dictionary[list(difference_dictionary)[-1]])!=True):
+    # The while loop goes on as long as the differences are not
+    # equal to each other in which case the difference degree
+    # was found
+    while(isRecurring(difference_dictionary[list(difference_dictionary)[-1]]) != True):
         current_difference_List=[]
         for iter in range(len(difference_dictionary[list(difference_dictionary)[-1]])-1):
             current_difference_List.append(difference_dictionary[list(difference_dictionary)[-1]][iter+1]-difference_dictionary[list(difference_dictionary)[-1]][iter])
         difference_dictionary['d'+str(len(difference_dictionary))+'(x)']=current_difference_List
     del difference_dictionary[FX]
-    if(isListNull(difference_dictionary[list(difference_dictionary)[-1]])):
-        del difference_dictionary[list(difference_dictionary)[-1]]
     data_points.update(difference_dictionary)
     difference_dictionary=data_points
     difference_tables.append(pd.DataFrame.from_dict(difference_dictionary,orient='index',dtype=object).T.reset_index(drop=True))
@@ -97,6 +106,9 @@ def render_polynomial(polynomial_dictionary):
             terms.append(str(coefficient))
         else: 
             terms.append(f"{coefficient}{X}{powerList[degree]}")
+    # This map changes items in the 'terms' list to be more
+    # aesthetic for the human eye
+    terms=list(map(lambda term:term.replace('1x','x').replace('+0','').replace('¹',''),terms))
     return "+".join(reversed(terms))
 
 
@@ -116,6 +128,12 @@ def cords_to_dictionary(cordData):
 # the values in the list are 0
 def isListNull(dataList):
     return not any(x != 0 for x in dataList)
+
+# Taking in a list, this function returns True if all
+# the items are the same
+def isRecurring(dataList):
+    return not any(x != dataList[0] for x in dataList)
+
 
 # This function finds the coefficient in accordance
 # to the degree and and the shared difference value.
@@ -142,6 +160,7 @@ def data_change(polynomial_dictionary):
 #as written in mathmatical notaion, this function returns a text string that is supposed to hold 
 #a elaborate log of the building of the polynomial.
 def proof_text_generator(polynomial_dictionary,difference_tables,final_polynomial):
+    print(polynomial_dictionary)
     split_polynomial=final_polynomial.split('+')
     proof=f"""
 The following is the broad explanation of the way the polynomial was found.
@@ -156,10 +175,10 @@ Firstly, we create the first table of differences out of the coordinates:
 {difference_tables[0]}
 
 The number of differences needed to get an equal differance allows us to understand
-that the degree of the equation is{polynomial_dictionary['degree'][-1]}.
+that the degree of the equation is {polynomial_dictionary['degree'][-1]}.
 
-Respectively, following the equation in theorm, the coefficient equals to the last difference divided by the factorial of the degree,"
-hence it equals to "+{polynomial_dictionary['coefficients'][-1]}.
+Respectively, following the equation in theorm, the coefficient equals to the last difference divided by the factorial of the degree,
+hence it equals to {polynomial_dictionary['coefficients'][-1]}.
 
 In correspondence, we know that the the equation contains the term {split_polynomial[0]}
 Therefore, if we remove that term's value from the f(x) values with respect to the fitting x values, we will recieve a polynomial of a lower degree. if we repeat so several times we will get the full polynomial
@@ -174,7 +193,7 @@ Hence, the next degree is {polynomial_dictionary['degree'][-x]} and it's coeffic
     proof+=f"""
 In a simple equation using x and the proven partial polynomial built until now, the remaining number to add to the polynomial is:
 {polynomial_dictionary['coefficients'][0]} Hence the final polynomial is:
-{final_polynomial}
+{final_polynomial.replace('+-','-')}
     """
     return proof
 
