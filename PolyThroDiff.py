@@ -79,9 +79,9 @@ def algorithm_execute(data_points):
 # Taking in sets of data points, this function stores a
 # Data Frame which expresses a difference table as defined
 # here: "https://brilliant.org/wiki/method-of-differences/",
-# and returns a list containing two items, a) the updated
-# difference tables, b) a dictionary containg the degree of the diff'
-# and the value of the difference
+# and returns a dictionary containing three items, a) the updated
+# difference tables, b) the degree of the current difference
+# and c) the value of the current difference
 def difference_dictionary_generator(data_points,difference_tables):
     difference_dictionary_return={}
     updated_difference_tables=difference_tables
