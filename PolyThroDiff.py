@@ -17,9 +17,8 @@ import math
 FX = 'f(x)'
 X = 'x'
 
-# The data points below are optional. there are 2 other
-# options to choose, or any the user knows to behave
-# in the nature described.
+# The data points below are optional. Any other the user knows to behave
+# in the nature described should work.
 
 
 #data_points=[[0,-4],[1,-2],[2,0],[3,2],[4,4],[5,6]]
